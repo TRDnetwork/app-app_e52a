@@ -1,0 +1,51 @@
+import type { Meta, StoryObj } from '@storybook/react';
+import Badge from './Badge';
+
+const meta: Meta<typeof Badge> = {
+  title: 'Components/Badge',
+  component: Badge,
+  tags: ['autodocs'],
+  argTypes: {
+    variant: {
+      control: 'select',
+      options: ['default', 'success', 'warning', 'error', 'info']
+    }
+  }
+};
+
+export default meta;
+type Story = StoryObj<typeof Badge>;
+
+export const Default: Story = {
+  args: {
+    children: 'Default'
+  }
+};
+
+export const Success: Story = {
+  args: {
+    variant: 'success',
+    children: 'Success'
+  }
+};
+
+export const Warning: Story = {
+  args: {
+    variant: 'warning',
+    children: 'Warning'
+  }
+};
+
+export const Error: Story = {
+  args: {
+    variant: 'error',
+    children: 'Error'
+  }
+};
+
+export const Info: Story = {
+  args: {
+    variant: 'info',
+    children: 'Info'
+  }
+};
