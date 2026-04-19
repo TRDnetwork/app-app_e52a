@@ -1,0 +1,1 @@
+-- No seed data required for a static site.

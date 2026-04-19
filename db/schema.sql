@@ -1,0 +1,3 @@
+-- No tables required. This is a static site with no database-backed features.
+-- All content (hero, about, projects, contact) is hardcoded in React components.
+-- Contact form is client-side only (simulated submit via setTimeout), no API or DB persistence.

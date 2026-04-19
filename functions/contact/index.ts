@@ -1,0 +1,1 @@
+-- No edge function required. Contact form is client-side simulated per team pattern.
