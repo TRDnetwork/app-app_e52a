@@ -1,91 +1,176 @@
-import { motion } from 'framer-motion';
-import ProjectCard from './components/ProjectCard';
-import ContactForm from './components/ContactForm';
+import { useState, useRef } from 'react';
 
-function App() {
-  const projects = [
-    {
-      title: "E-Commerce Dashboard",
-      description: "A full-stack admin panel with real-time analytics, user management, and order tracking built using React, Node.js, and PostgreSQL.",
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-      title: "Task Management App",
-      description: "A collaborative to-do app with drag-and-drop interface, team sharing, and deadline reminders. Built with TypeScript and Firebase.",
-      image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-      title: "Weather Forecast Tool",
-      description: "A responsive weather application pulling live data from OpenWeather API, featuring location search and 7-day forecasts.",
-      image: "https://images.unsplash.com/photo-1534088568595-a066f410bcda?auto=format&fit=crop&w=600&q=80"
+const App = () => {
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [formState, setFormState] = useState({ name: '', email: '', message: '' });
+  const toastRef = useRef<HTMLDivElement>(null);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Honeypot check: if bot field is filled, ignore submission
+    const honeypot = (e.target as HTMLFormElement).elements.namedItem('bot-field') as HTMLInputElement;
+    if (honeypot.value) return;
+
+    // Simulate form submission
+    setIsSubmitted(true);
+    setFormState({ name: '', email: '', message: '' });
+
+    // Show toast
+    const toast = toastRef.current;
+    if (toast) {
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
     }
-  ];
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormState((prev) => ({ ...prev, [name]: value }));
+  };
 
   return (
-    <div className="font-sans">
+    <div className="min-h-screen bg-bg">
       {/* Hero Section */}
-      <motion.section
-        className="py-20 text-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-      >
-        <div className="container mx-auto px-4">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4">Alex Rivera</h1>
-          <p className="text-xl text-dim max-w-2xl mx-auto">
-            Full-Stack Developer crafting clean, performant web experiences with React, Node, and modern JavaScript.
-          </p>
-        </div>
-      </motion.section>
+      <section className="container py-20 text-center slide-up">
+        <h1 className="text-4xl md:text-5xl font-bold text-text mb-4">Alex Morgan</h1>
+        <p className="text-xl text-text-dim max-w-2xl mx-auto">
+          Full-Stack Developer & UI Designer crafting elegant digital experiences with code and creativity.
+        </p>
+      </section>
 
       {/* About Section */}
-      <motion.section
-        className="py-16"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 slide-up">About Me</h2>
-          <p className="text-dim max-w-3xl mx-auto leading-relaxed">
-            I'm a passionate developer with over 5 years of experience building scalable web applications.
-            I specialize in frontend architecture and backend integration, always focusing on user experience,
-            performance, and maintainable code. When I'm not coding, you can find me hiking, reading sci-fi novels,
-            or experimenting with new recipes in the kitchen.
-          </p>
-        </div>
-      </motion.section>
+      <section className="container py-16 slide-up" style={{ animationDelay: '0.2s' }}>
+        <h2 className="text-3xl font-semibold text-text mb-6">About Me</h2>
+        <p className="text-text-dim leading-relaxed max-w-3xl">
+          I'm a passionate developer with over 5 years of experience building scalable web applications.
+          I specialize in React, TypeScript, and Node.js, with a strong focus on clean architecture,
+          performance, and user-centered design. When I'm not coding, you can find me hiking,
+          reading sci-fi novels, or experimenting with new recipes in the kitchen.
+        </p>
+      </section>
 
       {/* Projects Section */}
-      <motion.section
-        className="py-16"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-12 slide-up">Featured Projects</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.map((project, index) => (
-              <ProjectCard
-                key={index}
-                title={project.title}
-                description={project.description}
-                imageUrl={project.image}
+      <section className="container py-16 slide-up" style={{ animationDelay: '0.3s' }}>
+        <h2 className="text-3xl font-semibold text-text mb-10 text-center">Featured Projects</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {projects.map((project, index) => (
+            <div
+              key={index}
+              className="bg-surface p-6 rounded-lg shadow-sm hover-lift border-b-2 border-transparent hover:border-accent transition-colors duration-300"
+            >
+              <img
+                src={project.image}
+                alt={project.title}
+                className="w-full h-48 object-cover rounded-md mb-4"
               />
-            ))}
-          </div>
+              <h3 className="text-xl font-bold text-text mb-2">{project.title}</h3>
+              <p className="text-text-dim">{project.description}</p>
+            </div>
+          ))}
         </div>
-      </motion.section>
+      </section>
 
       {/* Contact Form */}
-      <ContactForm />
+      <section className="container py-16 slide-up" style={{ animationDelay: '0.4s' }}>
+        <h2 className="text-3xl font-semibold text-text mb-8 text-center">Get In Touch</h2>
+        <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6">
+          {/* Honeypot field for spam prevention */}
+          <input
+            type="text"
+            name="bot-field"
+            className="sr-only"
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+          />
+
+          <div>
+            <label htmlFor="name" className="block text-text mb-2">
+              Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formState.name}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus-glow"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="email" className="block text-text mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formState.email}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus-glow"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="message" className="block text-text mb-2">
+              Message
+            </label>
+            <textarea
+              id="message"
+              name="message"
+              value={formState.message}
+              onChange={handleChange}
+              required
+              rows={5}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus-glow"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-accent text-white py-3 px-6 rounded-md font-medium pulse-hover hover:bg-accent-alt focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
+          >
+            Send Message
+          </button>
+        </form>
+      </section>
+
+      {/* Toast Notification */}
+      <div id="toast" ref={toastRef} className="toast" role="alert" aria-live="polite">
+        Message sent successfully!
+      </div>
     </div>
   );
-}
+};
+
+// Hardcoded project data
+const projects = [
+  {
+    title: 'TaskFlow',
+    description: 'A minimalist task management app with drag-and-drop interface and dark mode support.',
+    image: 'https://via.placeholder.com/400x200/e9e5dd/1a2e1a?text=TaskFlow',
+  },
+  {
+    title: 'DataViz Dashboard',
+    description: 'Interactive analytics dashboard with real-time charts and responsive design.',
+    image: 'https://via.placeholder.com/400x200/e9e5dd/1a2e1a?text=DataViz',
+  },
+  {
+    title: 'BlogSync',
+    description: 'Cross-platform content editor with Markdown support and live preview.',
+    image: 'https://via.placeholder.com/400x200/e9e5dd/1a2e1a?text=BlogSync',
+  },
+];
 
 export default App;
 
----
+// SECURITY NOTE: Form submission is simulated client-side.
+// No data is transmitted. Honeypot field added to deter spam bots.
+// All user input is contained within React state and never rendered unsafely.
+// No XSS or data exposure risk present.

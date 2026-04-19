@@ -1,1 +1,1 @@
--- No seed data required for a static site.
+-- No seed data required. Site is static with no database.

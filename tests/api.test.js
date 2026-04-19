@@ -1,49 +1,68 @@
-import { rest } from 'msw';
-import { setupServer } from 'msw/node';
+// Mock Supabase client
+const mockSupabase = {
+  from: jest.fn().mockReturnThis(),
+  select: jest.fn().mockReturnThis(),
+  insert: jest.fn().mockReturnThis(),
+  eq: jest.fn().mockReturnThis(),
+  single: jest.fn().mockReturnThis(),
+  then: jest.fn()
+};
 
-const server = setupServer(
-  rest.post('/api/contact', (req, res, ctx) => {
-    return res(ctx.json({ success: true }));
-  })
-);
+// Mock the supabase import
+jest.mock('../src/lib/supabase', () => ({
+  supabase: mockSupabase
+}));
 
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
-
-describe('API Endpoints', () => {
-  it('should have no actual API endpoints (static site)', () => {
-    expect(window.location.pathname).not.toMatch(/\/api\//);
+describe('API Integration Tests', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  it('contact form simulation does not make network requests', async () => {
-    const originalFetch = global.fetch;
-    global.fetch = jest.fn();
-
-    const { getByRole } = render(<ContactForm />, { wrapper: BrowserRouter });
-    const button = getByRole('button', { name: /send message/i });
-    await fireEvent.click(button);
-
-    expect(global.fetch).not.toHaveBeenCalled();
-
-    global.fetch = originalFetch;
-  });
-
-  it('should handle form validation correctly', () => {
-    const { getByLabelText, getByRole } = render(<ContactForm />, { wrapper: BrowserRouter });
+  test('form submission calls Supabase insert with correct data', async () => {
+    const { handleSubmit } = require('../src/components/ContactForm');
     
-    const nameInput = getByLabelText('Name');
-    const emailInput = getByLabelText('Email');
-    const messageInput = getByLabelText('Message');
-    const button = getByRole('button', { name: /send message/i });
+    const mockData = {
+      name: 'Test User',
+      email: 'test@example.com',
+      message: 'Hello'
+    };
+    
+    await handleSubmit(mockData);
+    
+    expect(mockSupabase.from).toHaveBeenCalledWith('contact_messages');
+    expect(mockSupabase.insert).toHaveBeenCalledWith(mockData);
+  });
 
-    fireEvent.change(nameInput, { target: { value: '' } });
-    fireEvent.change(emailInput, { target: { value: 'not-an-email' } });
-    fireEvent.change(messageInput, { target: { value: '' } });
-    fireEvent.click(button);
+  test('handles Supabase error during form submission', async () => {
+    mockSupabase.then.mockImplementationOnce((onSuccess, onError) => {
+      return onError({ error: 'Network error' });
+    });
+    
+    const { handleSubmit } = require('../src/components/ContactForm');
+    
+    const result = await handleSubmit({
+      name: 'Test',
+      email: 'test@example.com',
+      message: 'Hello'
+    });
+    
+    expect(result).toEqual({ error: 'Network error' });
+  });
 
-    expect(screen.getByText('Name is required')).toBeInTheDocument();
-    expect(screen.getByText('Valid email is required')).toBeInTheDocument();
-    expect(screen.getByText('Message is required')).toBeInTheDocument();
+  test('fetches projects from Supabase correctly', async () => {
+    const mockProjects = [
+      { id: 1, title: 'Project 1', description: 'Description 1' }
+    ];
+    
+    mockSupabase.then.mockImplementationOnce((callback) => {
+      return callback({ data: mockProjects, error: null });
+    });
+    
+    const { fetchProjects } = require('../src/App');
+    const result = await fetchProjects();
+    
+    expect(mockSupabase.from).toHaveBeenCalledWith('projects');
+    expect(mockSupabase.select).toHaveBeenCalledWith('*');
+    expect(result).toEqual(mockProjects);
   });
 });

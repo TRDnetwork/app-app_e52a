@@ -1,3 +1,3 @@
--- No tables required. This is a static site with no database-backed features.
--- All content (hero, about, projects, contact) is hardcoded in React components.
--- Contact form is client-side only (simulated submit via setTimeout), no API or DB persistence.
+-- No tables required for this static portfolio site.
+-- All content is hardcoded in React components.
+-- No authentication, storage, or real-time features needed.

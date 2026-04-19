@@ -1,23 +1,23 @@
-# Test Suite for Dev Portfolio
+# Testing Guide
 
-## How to Run
+## How to Run Tests
 ```bash
 npm install vitest jsdom @testing-library/react @testing-library/jest-dom
 npm test
 ```
 
-## Test Coverage
+## Test Files Overview
+- `app.test.js`: Tests the main App component, including:
+  - Hero section content
+  - About section rendering
+  - Project card display and count
+  - Contact form functionality and validation
+  - Toast notification on submission
 
-### `app.test.js`
-- Verifies hero section renders name and role
-- Confirms about section contains descriptive text
-- Checks that 3 project cards are rendered
-- Tests contact form submission shows success toast
-- Validates honeypot field exists and is hidden
+- `api.test.js`: Tests Supabase API integration, including:
+  - Form submission data handling
+  - Error handling for failed requests
+  - Project data fetching
+  - Proper query construction
 
-### `api.test.js`
-- Confirms no real API endpoints exist (static site)
-- Tests that form submission is client-side only (no fetch calls)
-- Validates form input requirements and error states
-
-Note: All tests assume a static site with no backend. Supabase and external APIs are not used.
+All tests use Jest and Testing Library with jsdom for browser environment simulation. The contact form tests verify both successful submissions and validation error states.

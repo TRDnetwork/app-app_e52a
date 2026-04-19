@@ -1,14 +1,24 @@
+import React from 'react';
 import { motion } from 'framer-motion';
-import { useEffect } from 'react';
+
+export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
 interface ToastProps {
   show: boolean;
   message: string;
+  type?: ToastType;
   onClose: () => void;
 }
 
-const Toast: React.FC<ToastProps> = ({ show, message, onClose }) => {
-  useEffect(() => {
+const typeStyles: Record<ToastType, string> = {
+  success: 'bg-green-500',
+  error: 'bg-red-500',
+  warning: 'bg-yellow-500',
+  info: 'bg-blue-500'
+};
+
+export default function Toast({ show, message, type = 'success', onClose }: ToastProps) {
+  React.useEffect(() => {
     if (show) {
       const timer = setTimeout(() => {
         onClose();
@@ -21,14 +31,14 @@ const Toast: React.FC<ToastProps> = ({ show, message, onClose }) => {
 
   return (
     <motion.div
-      className="toast"
-      initial={{ opacity: 0, y: 20 }}
+      className={`fixed top-4 right-4 ${typeStyles[type]} text-white px-6 py-3 rounded-md shadow-lg z-50 min-w-64 max-w-xs text-center`}
+      initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 20 }}
+      exit={{ opacity: 0, y: -20 }}
+      role="status"
+      aria-live="polite"
     >
       {message}
     </motion.div>
   );
-};
-
-export default Toast;
+}

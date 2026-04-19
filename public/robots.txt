@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://app_e52a.vercel.app/sitemap.xml
+Sitemap: https://app_e52a.trdnet.vercel.app/sitemap.xml

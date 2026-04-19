@@ -1,11 +1,12 @@
 {
-  "name": "Dev Portfolio",
-  "short_name": "Portfolio",
-  "description": "A clean personal portfolio site showcasing projects and contact information.",
+  "name": "Alex Rivera | Portfolio",
+  "short_name": "Portfolio Pro",
+  "description": "A clean, responsive portfolio showcasing projects and contact information.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#faf8f5",
   "theme_color": "#1a2e1a",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "icons/icon-192x192.png",

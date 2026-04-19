@@ -1,88 +1,146 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
-const ContactForm: React.FC = () => {
+export default function ContactForm() {
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     message: '',
-    honeypot: ''
+    'bot-field': ''
   });
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+
+    // Clear error on change
+    if (formErrors[name]) {
+      setFormErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.name.trim()) newErrors.name = 'Name is required';
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+    if (!formData.message.trim()) newErrors.message = 'Message is required';
+
+    setFormErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (formData.honeypot) {
-      console.log('Bot detected via honeypot');
+
+    if (formData['bot-field']) {
+      console.log('Bot submission detected and blocked');
       return;
     }
 
-    setIsLoading(true);
+    if (!validateForm()) return;
 
-    setTimeout(() => {
-      setIsSubmitted(true);
-      setIsLoading(false);
-      setFormData({ name: '', email: '', message: '', honeypot: '' });
-      
-      setTimeout(() => setIsSubmitted(false), 3000);
-    }, 600);
+    // Simulate form submission
+    setIsSubmitted(true);
+    setTimeout(() => setIsSubmitted(false), 3000);
+
+    setFormData({ name: '', email: '', message: '', 'bot-field': '' });
   };
 
   return (
-    <motion.section
-      className="py-16 slide-up"
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.6, delay: 1.1 }}
-    >
+    <section id="contact" className="py-16" aria-labelledby="contact-heading">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold mb-8 text-center">Get In Touch</h2>
-        <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6">
-          {isSubmitted && (
-            <div
-              className="toast"
-              role="alert"
-              aria-live="assertive"
-              aria-atomic="true"
-            >
-              Message sent successfully!
+        <h2 id="contact-heading" className="text-3xl font-bold mb-8 slide-up">Get In Touch</h2>
+        {isSubmitted && (
+          <div
+            className="toast show"
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+          >
+            Message sent successfully!
+          </div>
+        )}
+        <form
+          onSubmit={handleSubmit}
+          noValidate
+          className="max-w-2xl mx-auto space-y-6"
+          aria-describedby={formErrors && "form-errors-summary"}
+        >
+          {/* Error summary (hidden until needed) */}
+          {Object.keys(formErrors).length > 0 && (
+            <div id="form-errors-summary" className="bg-red-50 border-l-4 border-red-500 p-4 text-red-800 text-sm" role="alert">
+              <p>Please correct the following errors:</p>
+              <ul className="list-disc list-inside">
+                {Object.values(formErrors).map((error, i) => (
+                  <li key={i}>{error}</li>
+                ))}
+              </ul>
             </div>
           )}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="name" className="block mb-2 font-medium">Name</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus-glow"
-              />
-            </div>
-            <div>
-              <label htmlFor="email" className="block mb-2 font-medium">Email</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus-glow"
-              />
-            </div>
-          </div>
+
+          <input
+            type="text"
+            name="bot-field"
+            className="hidden"
+            autoComplete="off"
+            value={formData['bot-field']}
+            onChange={handleChange}
+            tabIndex={-1}
+            aria-hidden="true"
+          />
+
           <div>
-            <label htmlFor="message" className="block mb-2 font-medium">Message</label>
+            <label htmlFor="name" className="block mb-2 text-dim">Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              aria-invalid={!!formErrors.name}
+              aria-describedby={formErrors.name ? "name-error" : undefined}
+              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus-glow"
+            />
+            {formErrors.name && (
+              <p id="name-error" className="text-red-600 text-sm mt-1" role="alert">
+                {formErrors.name}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="email" className="block mb-2 text-dim">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              aria-invalid={!!formErrors.email}
+              aria-describedby={formErrors.email ? "email-error" : undefined}
+              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus-glow"
+            />
+            {formErrors.email && (
+              <p id="email-error" className="text-red-600 text-sm mt-1" role="alert">
+                {formErrors.email}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="message" className="block mb-2 text-dim">Message</label>
             <textarea
               id="message"
               name="message"
@@ -90,35 +148,26 @@ const ContactForm: React.FC = () => {
               onChange={handleChange}
               required
               rows={5}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus-glow"
+              aria-invalid={!!formErrors.message}
+              aria-describedby={formErrors.message ? "message-error" : undefined}
+              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus-glow"
             />
+            {formErrors.message && (
+              <p id="message-error" className="text-red-600 text-sm mt-1" role="alert">
+                {formErrors.message}
+              </p>
+            )}
           </div>
-          <div className="hidden">
-            <label htmlFor="honeypot">Don’t fill this out</label>
-            <input
-              type="text"
-              id="honeypot"
-              name="honeypot"
-              value={formData.honeypot}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="text-center">
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`inline-flex items-center justify-center px-6 py-3 rounded-md text-white font-medium pulse-hover focus-glow transition-colors ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
-              style={{ backgroundColor: 'var(--accent)' }}
-            >
-              {isLoading ? 'Sending...' : 'Send Message'}
-            </button>
-          </div>
+
+          <button
+            type="submit"
+            className="bg-[var(--accent)] text-white px-6 py-2 rounded hover-lift pulse-hover transition focus-glow"
+            aria-describedby={isSubmitted ? "toast-message" : undefined}
+          >
+            Send Message
+          </button>
         </form>
       </div>
-    </motion.section>
+    </section>
   );
-};
-
-export default ContactForm;
-
----
+}
