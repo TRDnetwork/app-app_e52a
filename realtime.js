@@ -1,1 +1,1 @@
-// Static site with no realtime requirements. No Supabase usage.
+/* No realtime needed for static portfolio site */
