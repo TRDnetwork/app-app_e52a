@@ -1,0 +1,1 @@
+// Static site with no realtime requirements. No Supabase usage.
